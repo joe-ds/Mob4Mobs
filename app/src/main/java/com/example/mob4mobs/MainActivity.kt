@@ -35,7 +35,6 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
     context, DATABASE_NAME, null, DATABASE_VERSION
 ) {
     override fun onCreate(db: SQLiteDatabase) {
-        // Create table with two columns: id (int) and name (text)
         val createTable = """
             CREATE TABLE $TABLE_NAME (
                 $COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,6 +43,7 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
         """.trimIndent()
         db.execSQL(createTable)
 
+        // If you change the notes, make sure you change this too!
         val insertDefault = """
         INSERT INTO $TABLE_NAME ($COLUMN_NAME) VALUES 
         ('test'),
@@ -73,9 +73,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         Utils().setupChallengeFiles(this)
-
         dbHelper = MyDatabaseHelper(this)
 
         setContent {
@@ -129,7 +127,7 @@ fun SearchScreen(
             },
             modifier = Modifier.align(Alignment.End)
         ) {
-            Text("Search")
+            Text("Fetch note")
         }
     }
 }
@@ -138,9 +136,9 @@ fun getMatchingNote(dbHelper: MyDatabaseHelper, query: String): String? {
     val db = dbHelper.readableDatabase
     val rawQuery = "SELECT * FROM ${MyDatabaseHelper.TABLE_NAME} WHERE ${MyDatabaseHelper.COLUMN_NAME} = '$query'"
     val cursor = db.rawQuery(rawQuery, null)
-    val result = if (cursor.moveToFirst()) {
-        cursor.getString(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_NAME))
-    } else null
-    cursor.close()
-    return result
+    cursor.use {
+        return if (cursor.moveToFirst()) {
+            cursor.getString(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_NAME))
+        } else null
+    }
 }

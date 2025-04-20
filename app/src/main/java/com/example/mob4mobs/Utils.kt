@@ -6,14 +6,8 @@ import java.io.FileOutputStream
 
 class Utils {
     fun setupChallengeFiles(context: Context) {
-        val notesDir = File(context.filesDir, "preload")
-        val markerFile = File(notesDir, "Alice")
-
-        if (markerFile.exists()) {
-            // Already set up
-            return
-        }
-        copyAssetsToFilesDir(context, "preload", context.filesDir)
+        if (!File("${context.filesDir.path}/notes/", "test").exists())
+            copyAssetsToFilesDir(context, "preload", context.filesDir)
     }
 
     private fun copyAssetsToFilesDir(context: Context, assetPath: String = "preload", destPath: File = context.filesDir) {
